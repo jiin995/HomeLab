@@ -1,0 +1,13 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - 127.0.0.1:9443:9443
+    volumes:
+      - poertainer-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'portainer', '--healthcheck']
+volumes:
+  poertainer-data:

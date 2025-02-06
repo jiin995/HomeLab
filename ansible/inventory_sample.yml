@@ -1,0 +1,6 @@
+public:
+  hosts:
+    public_host_name:
+      docker_compose_folder: /opt/
+      ansible_user: ansible
+      ansible_become_password: "{{ ansible_user_password }}"

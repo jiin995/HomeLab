@@ -1,0 +1,48 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name auth.*;
+
+    # Security headers
+    add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+
+    # SSL settings
+    include /config/nginx/ssl.conf;
+    
+    # Allow unlimited request body size (adjust based on requirements)
+    client_max_body_size 0;
+
+    # Include common configurations
+    include /config/nginx/proxy.conf;
+    include /config/nginx/resolver.conf;
+    
+    # Define upstream server variables
+    set $upstream_app keycloak;
+    set $upstream_port 8080;
+    set $upstream_proto http;
+
+    # Proxy specific paths to the upstream
+    location ~ ^/(js|realms|resources)/ {
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+    }
+
+    location /robots.txt {
+        return 404;
+    }
+
+    # We don't really care about anything else.
+    location / {
+        return 404;
+    }
+
+    # Protect admin route with IP restriction and proxy upstream
+    location /admin {
+    {% for ip in swag.fail2ban.ignoreip.split() %}
+        allow {{ ip }};
+    {% endfor %}
+        deny all;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+    }
+    
+}

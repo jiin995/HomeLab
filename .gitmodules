@@ -1,0 +1,3 @@
+[submodule "keycloakify-starter"]
+	path = keycloakify-starter
+	url = https://github.com/keycloakify/keycloakify-starter

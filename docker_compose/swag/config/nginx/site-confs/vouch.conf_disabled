@@ -1,0 +1,15 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name vouch.*;
+
+    include /config/nginx/ssl.conf;
+
+
+    location / {
+      proxy_pass http://vouch:9090;
+      # be sure to pass the original host header
+      proxy_set_header Host $http_host;
+    }
+}

@@ -1,0 +1,53 @@
+- name: Save ansible base path variable for future use
+  ansible.builtin.set_fact:
+    docker_compose_src_folder: "{{ role_path }}/../../../docker_compose/{{ service_name }}"
+
+# Template for deploy compose
+- name: "Copy folder to remote {{ service_name }}"
+  ansible.builtin.copy:
+    mode: "0640"
+    src: "{{ docker_compose_src_folder }}"
+    dest: "{{ docker_compose_folder }}/"
+
+# Copy and render templates
+- name: "Find all template files for service {{ service_name }}"
+  delegate_to: 127.0.0.1
+  become: false
+  ansible.builtin.find:
+    paths: "{{ docker_compose_src_folder }}"
+    patterns: "*.j2"
+    hidden: true
+    recurse: true
+  register: template_files
+
+- name: "Render all templates for service {{ service_name }}"
+  ansible.builtin.template:
+    src: "{{ item.path }}"
+    dest: "{{ docker_compose_folder }}/{{ service_name }}/{{ item.path | regex_replace( '.+' + service_name +'/', '') | regex_replace('\\.j2$', '') }}"
+    # owner: someuser
+    # group: somegroup
+    mode: '0640'
+  loop: "{{ template_files.files }}"
+
+- name: "Delete template file from remote"
+  ansible.builtin.file:
+    state: absent
+    path: "{{ docker_compose_folder }}/{{ service_name }}/{{ item.path | basename }}"
+  loop: "{{ template_files.files }}"
+
+- name: Tear down {{ service_name }}
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_folder }}/{{ service_name }}/"
+    state: absent
+  when: destroy_before_create
+
+- name: "Create and start service {{ service_name }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_folder }}/{{ service_name }}/"
+    pull: always
+  register: output
+
+- name: "Show results {{ service_name }}"
+  ansible.builtin.debug:
+    var: output
+  when: debug

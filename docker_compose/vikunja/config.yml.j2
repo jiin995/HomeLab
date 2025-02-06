@@ -1,0 +1,13 @@
+auth:
+    local:
+        enabled: true
+    openid:
+        enabled: true
+        redirecturl: {{ vikunja.service_frontendurl }}/auth/openid/
+        providers:
+            - name: Keycloak
+              authurl: {{ vikunja.authurl }}
+              logouturl: {{ vikunja.logouturl }}
+              clientid: {{ vikunja.clientid }}
+              clientsecret: {{ vikunja.clientsecret }}
+              scope: openid email profile

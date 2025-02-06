@@ -1,0 +1,28 @@
+- name: Provision public services
+  hosts: public
+  gather_facts: false
+  become: true
+  # tasks:
+  #   - name: Display the config
+  #     ansible.builtin.debug:
+  #       msg: "The hostname is {{ ansible_net_hostname }} and the OS is {{ ansible_net_version }}"
+  vars_files:
+    - group_vars/public/vault.yml
+
+  roles:
+    - name: Portainer
+      role: deploy-service-with-docker-compose
+      service_name: portainer
+    - name: Swag
+      role: deploy-service-with-docker-compose
+      service_name: swag
+      destroy_before_create: true
+    - name: Outline
+      role: deploy-service-with-docker-compose
+      service_name: outline
+    - name: Vikunja
+      role: deploy-service-with-docker-compose
+      service_name: vikunja
+    - name: Keycloak
+      role: deploy-service-with-docker-compose
+      service_name: keycloak

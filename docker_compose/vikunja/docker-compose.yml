@@ -1,0 +1,43 @@
+services:
+  db:
+    image: mariadb:10
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - ./db:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD"]
+      interval: 2s
+      start_period: 30s
+  be:
+    container_name: vikunja
+    image: vikunja/vikunja
+    environment:
+      VIKUNJA_DATABASE_TYPE: mysql
+      VIKUNJA_DATABASE_HOST: db
+      VIKUNJA_DATABASE_PASSWORD: ${MYSQL_PASSWORD}
+      VIKUNJA_DATABASE_USER: ${MYSQL_USER}
+      VIKUNJA_DATABASE_DATABASE: ${MYSQL_DATABASE}
+      VIKUNJA_SERVICE_JWTSECRET: ${VIKUNJA_SERVICE_JWTSECRET}
+      VIKUNJA_SERVICE_FRONTENDURL: ${VIKUNJA_SERVICE_FRONTENDURL}
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: ${VIKUNJA_SERVICE_ENABLEREGISTRATION}
+    volumes: 
+      - ./files:/app/vikunja/files
+      - ./config.yml:/app/vikunja/config.yml
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - default
+      - public_ingress
+
+networks:
+  public_ingress:
+    name: public_ingress
+    external: true

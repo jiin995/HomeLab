@@ -1,0 +1,2 @@
+- name: Deply service with compose {{ service_name }}
+  ansible.builtin.import_tasks: deploy_service_with_compose.yml
