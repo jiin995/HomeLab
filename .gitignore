@@ -1,0 +1,6 @@
+vault.yml
+inventory.yml
+
+.DS_Store
+
+.vscode/*
