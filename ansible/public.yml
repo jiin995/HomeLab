@@ -13,19 +13,24 @@
     - name: Portainer
       role: deploy-service-with-docker-compose
       service_name: portainer
+      tags: portainer
     - name: Swag
       role: deploy-service-with-docker-compose
       service_name: swag
       destroy_before_create: true
+      tags: swag
     - name: Outline
       role: deploy-service-with-docker-compose
       service_name: outline
+      tags: outline
     - name: Vikunja
       role: deploy-service-with-docker-compose
       service_name: vikunja
+      tags: vikunja
     - name: Keycloak
       role: deploy-service-with-docker-compose
       service_name: keycloak
+      tags: keycloack
     - name: devops
       role: deploy-service-with-docker-compose
       service_name: devops
