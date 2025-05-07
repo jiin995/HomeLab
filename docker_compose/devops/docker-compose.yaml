@@ -1,0 +1,74 @@
+# Jenkins Sandbox
+version: '3.7'
+services:
+  jenkins:
+    build: .
+    # image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: 1000:1000
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - ./data/jenkins:/var/jenkins_home
+      # - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - public_ingress
+      - default
+    restart: always
+    environment:
+      - DOCKER_HOST=tcp://dind:2375
+  # agent:
+  #   image: jenkins/ssh-agent:jdk11
+  #   container_name: jenkins_sandbox_agent
+  #   privileged: true
+  #   user: root
+  #   expose:
+  #     - 22
+  #   environment:
+  #     - JENKINS_AGENT_SSH_PUBKEY=${JENKINS_AGENT_SSH_PUBLIC_KEY}
+
+  dind:
+    image: docker:24.0.5-dind
+    container_name: dind
+    privileged: true # Needed to run docker daemon inside container
+    restart: unless-stopped
+    # environment:
+    #   - DOCKER_TLS_CERTDIR= # Disable TLS inside network
+    volumes:
+      - ./data/dind:/var/lib/docker
+    networks:
+      - default
+
+  registry:
+    container_name: "registry"
+    image: registry:2.6
+    # ports:
+    #   - 127.0.0.1:5000:5000
+    environment:
+      REGISTRY_HTTP_ADDR: :5000
+      REGISTRY_STORAGE: filesystem
+      REGISTRY_STORAGE_DELETE_ENABLED: 'true'
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry
+    volumes:
+      - ./data/registry:/var/lib/registry
+      - ./config/registry/auth:/auth
+      - ./config/registry/config.yml:/etc/docker/registry/config.yml
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        "max-size": "10m"
+        "max-file": "5"
+    networks:
+      - public_ingress
+      - default
+
+networks:
+  public_ingress:
+    name: public_ingress
+    external: true

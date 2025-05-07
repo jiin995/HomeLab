@@ -1,0 +1,18 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name registry.*;
+
+    include /config/nginx/ssl.conf;
+    client_max_body_size 0;
+
+    location / {
+        proxy_pass http://registry:5000;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_ssl_server_name on;
+        proxy_http_version 1.1;
+        proxy_pass https://localhost:5000;
+    }
+}

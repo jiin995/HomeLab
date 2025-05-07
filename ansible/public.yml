@@ -26,3 +26,7 @@
     - name: Keycloak
       role: deploy-service-with-docker-compose
       service_name: keycloak
+    - name: devops
+      role: deploy-service-with-docker-compose
+      service_name: devops
+      tags: devops
