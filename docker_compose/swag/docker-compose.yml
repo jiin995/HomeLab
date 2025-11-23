@@ -11,6 +11,9 @@ services:
     ports:
       - 443:443
       - 80:80 #optional
+      - 993:993
+      - 465:465
+      - 25:25
     restart: unless-stopped
     networks:
       - public_ingress

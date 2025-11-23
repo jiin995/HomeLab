@@ -31,6 +31,10 @@
       role: deploy-service-with-docker-compose
       service_name: keycloak
       tags: keycloack
+    - name: mailu
+      role: deploy-service-with-docker-compose
+      service_name: mailu
+      tags: mailu
     - name: devops
       role: deploy-service-with-docker-compose
       service_name: devops
