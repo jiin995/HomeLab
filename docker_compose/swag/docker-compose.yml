@@ -8,6 +8,7 @@ services:
       - .env
     volumes:
       - ./config:/config
+      - ./custom-cont-init.d:/custom-cont-init.d:ro
     ports:
       - 443:443
       - 80:80 #optional
